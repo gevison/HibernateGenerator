@@ -191,8 +191,10 @@ public class HibernateGenerator
 
         List<CompositeKeyColumn> keyColumns = compositeKeyTable.getKeyColumns();
 
-        for ( CompositeKeyColumn keyColumn : keyColumns )
+        for ( int i = 0; i < keyColumns.size(); i++ )
         {
+            CompositeKeyColumn keyColumn = keyColumns.get(i);
+
             retVal.addMember( createCompositeKeyField( keyColumn ) );
 
             String fieldName = generateKeyFieldName( keyColumn );
@@ -211,7 +213,14 @@ public class HibernateGenerator
             equalsMethod.addBodyString("        return false;");
             equalsMethod.addBodyString("}");
 
-            toStringMethod.addBodyString("\""+fieldName+"=\" + "+fieldName+" +");
+            if ( i != 0 )
+            {
+                toStringMethod.addBodyString("\", "+fieldName+"=\" + "+fieldName+" +");
+            }
+            else
+            {
+                toStringMethod.addBodyString("\""+fieldName+"=\" + "+fieldName+" +");
+            }
         }
 
         hashCodeMethod.addBodyString( "return result;" );
