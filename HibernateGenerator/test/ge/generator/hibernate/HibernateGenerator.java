@@ -3,8 +3,12 @@ package ge.generator.hibernate;
 import javax.persistence.*;
 import javax.xml.bind.*;
 import java.io.*;
-import java.sql.*;
-import java.sql.Date;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.*;
 
 import ge.generator.java.*;
@@ -41,8 +45,8 @@ public class HibernateGenerator
                                              JAXBException
     {
         Connection connection = DriverManager.getConnection( "jdbc:oracle:thin:@SVR-MET-COAL0:1521:devcent",
-                                                             "ge_m5migration",
-                                                             "hallo" );
+                                                             "M5d3",
+                                                             "m5" );
 
         SchemaLoader schemaLoader = new InferisOracleSchemaLoader();
 
@@ -332,6 +336,10 @@ public class HibernateGenerator
         {
             retVal.addAnnotation(HibernateAnnotationHelper.createLobAnnotation());
         }
+        else if ( column.getType() == DataTypeEnum.DATE )
+        {
+            retVal.addAnnotation(HibernateAnnotationHelper.createTemporalAnnotation(TemporalType.TIMESTAMP));
+        }
 
         retVal.addModifier( Modifier.PRIVATE );
 
@@ -361,7 +369,14 @@ public class HibernateGenerator
         {
             if ( link instanceof ManyToManyLink )
             {
-                classJavaObject.addMember( createManyToManyField( schema, ( ManyToManyLink ) link ) );
+                Field manyToManyField = createManyToManyField( schema, ( ManyToManyLink ) link );
+
+                if ( classJavaObject.hasField(manyToManyField.getName() ) == true)
+                {
+                    manyToManyField.setName(manyToManyField.getName()+"1");
+                }
+
+                classJavaObject.addMember( manyToManyField );
             }
             else if ( link instanceof ManyToOneLink )
             {
@@ -402,8 +417,8 @@ public class HibernateGenerator
 
         retVal.setType( ExistingJavaObject.instance( List.class, extensions ) );
 
-        String fieldName = null;
-
+        String fieldName = generateFieldName(link.getJoinTableName());
+/*
         if ( link.getJoinColumnName().equals( link.getJoinColumnReferencedName() ) == false )
         {
             fieldName = generateFieldName( link.getJoinColumnName() );
@@ -417,7 +432,7 @@ public class HibernateGenerator
         {
             fieldName = generateFieldName( link.getDestinationTableName() );
         }
-
+*/
         if ( fieldName.endsWith( "s" ) == false )
         {
             if ( fieldName.endsWith( "y" ) == true )
@@ -665,6 +680,11 @@ public class HibernateGenerator
     private static JavaObject getColumnFieldType( Column column )
     {
         JavaObject type;
+
+        if ( column == null )
+        {
+            System.out.println(column.getColumnName());
+        }
 
         switch ( column.getType() )
         {

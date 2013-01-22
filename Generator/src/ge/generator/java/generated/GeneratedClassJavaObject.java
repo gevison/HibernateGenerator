@@ -254,6 +254,23 @@ public class GeneratedClassJavaObject extends ParentObject implements ClassJavaO
         return this.members.isEmpty();
     }
 
+    public boolean hasField( String name )
+    {
+        for ( int i = 0; i < members.size(); i++ )
+        {
+            Member member = members.get( i );
+
+            if ( member instanceof Field )
+            {
+                Field field = ( Field ) member;
+
+                if ( field.getName().equals(name) == true )
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public String getFullyQualifiedName()
     {
         return getPackageName() + "." + identifier;

@@ -21,6 +21,14 @@ public class SchemaData
         }
     }
 
+    public void removeTableData( TableData data )
+    {
+        if ( tables.containsKey(data.getTableName()) == true )
+        {
+            tables.remove(data.getTableName());
+        }
+    }
+
     public void addColumnData( ColumnData data )
     {
         if ( tables.containsKey(data.getTableName()) == true )

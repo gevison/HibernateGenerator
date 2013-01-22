@@ -330,4 +330,22 @@ public class HibernateAnnotationHelper
 
         return retVal;
     }
+
+    public static Annotation createTemporalAnnotation( TemporalType type )
+    {
+        Annotation retVal = new Annotation();
+
+        retVal.setType( ( AnnotationJavaObject ) ExistingJavaObject.instance( Temporal.class ) );
+
+        AnnotationElement annotationElement = new AnnotationElement();
+
+        ElementValue elementValue = new ElementValue();
+        elementValue.addAdditionalImport( ( NonReferenceJavaObject ) ExistingJavaObject.instance( TemporalType.class ) );
+        elementValue.setElementValue( "TemporalType." + type.name() );
+        annotationElement.setElementValue(elementValue);
+
+        retVal.setAnnotationElement( annotationElement );
+
+        return retVal;
+    }
 }

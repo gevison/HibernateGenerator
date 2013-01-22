@@ -1,26 +1,34 @@
 package ge.generator.jdbc.api;
 
-import java.sql.*;
-import java.util.*;
+import ge.generator.jdbc.api.links.ManyToManyLink;
+import ge.generator.jdbc.api.links.ManyToOneLink;
+import ge.generator.jdbc.api.links.OneToManyLink;
+import ge.generator.jdbc.api.links.PrimaryKeyJoinOneToOneLink;
+import ge.generator.jdbc.impl.ColumnData;
+import ge.generator.jdbc.impl.KeyData;
+import ge.generator.jdbc.impl.LinkData;
+import ge.generator.jdbc.impl.SchemaData;
+import ge.generator.jdbc.impl.TableData;
+import org.apache.log4j.Logger;
 
-import ge.generator.jdbc.api.links.*;
-import ge.generator.jdbc.impl.*;
-import org.apache.log4j.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 public abstract class SchemaLoader
 {
-    private static final Logger logger = Logger.getLogger(SchemaLoader.class);
+    private static final Logger logger = Logger.getLogger( SchemaLoader.class );
 
     public Schema loadSchema( Connection connection ) throws
                                                       SQLException
     {
-        logger.info("Loading Schema Data.");
+        logger.info( "Loading Schema Data." );
         SchemaData schemaData = loadSchemaData( connection );
 
-        logger.info("Filtering Schema Data.");
+        logger.info( "Filtering Schema Data." );
         schemaData = filterSchemaData( schemaData );
 
-        logger.info("Processing Schema Data.");
+        logger.info( "Processing Schema Data." );
         return processSchemaData( schemaData );
     }
 
@@ -38,14 +46,14 @@ public abstract class SchemaLoader
 
                 if ( tableData.isCompositeTable() == false )
                 {
-                    logger.info("Creating Primary Key Table: "+ tableName );
+                    logger.info( "Creating Primary Key Table: " + tableName );
                     PrimaryKeyTable table = new PrimaryKeyTable( tableName );
 
                     retVal.addTable( table );
                 }
                 else
                 {
-                    logger.info("Creating Composite Key Table: "+ tableName );
+                    logger.info( "Creating Composite Key Table: " + tableName );
                     CompositeKeyTable table = new CompositeKeyTable( tableName );
 
                     retVal.addTable( table );
@@ -147,10 +155,11 @@ public abstract class SchemaLoader
                                             }
 
                                             manyToManyLink.setJoinTableName( linkTable.getTableName() );
-                                            manyToManyLink.setJoinColumnName(  linkColumn.getColumnName());
+                                            manyToManyLink.setJoinColumnName( linkColumn.getColumnName() );
                                             manyToManyLink.setJoinColumnReferencedName( columnName );
                                             manyToManyLink.setInverseJoinColumnName( otherLink.getColumnName1() );
-                                            manyToManyLink.setInverseJoinColumnReferencedName( otherLink.getColumnName2() );
+                                            manyToManyLink
+                                                    .setInverseJoinColumnReferencedName( otherLink.getColumnName2() );
                                             manyToManyLink.setDestinationTableName( otherLink.getTableName2() );
 
                                             table.addLink( manyToManyLink );
@@ -210,7 +219,7 @@ public abstract class SchemaLoader
                         Column column = new Column( columnData.getColumnName() );
                         column.setIndex( columnData.getColumnIndex() );
                         column.setType( columnData.getDataType() );
-                        column.setDataScale(columnData.getDataScale());
+                        column.setDataScale( columnData.getDataScale() );
 
                         table.addColumn( column );
                     }
